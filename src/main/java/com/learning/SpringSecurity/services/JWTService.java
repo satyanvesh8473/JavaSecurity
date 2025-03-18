@@ -52,6 +52,7 @@ public class JWTService {
 	private SecretKey getKey() {
 		byte[] keyBites = Decoders.BASE64.decode(secreteKey);
 		return Keys.hmacShaKeyFor(keyBites);
+//		Testing gitHub
 	}
 
 	private <T> T extractClaims(String token, Function<Claims, T> claimResolver) {
