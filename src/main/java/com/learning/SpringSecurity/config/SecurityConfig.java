@@ -14,6 +14,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.learning.SpringSecurity.filters.JwtFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -22,18 +25,21 @@ public class SecurityConfig {
 	@Autowired
 	private UserDetailsService userDetailsService;
 
+	@Autowired
+	private JwtFilter jwtFilter;
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity.csrf(customizer -> customizer.disable());
-		httpSecurity.authorizeHttpRequests(
-				request -> request.antMatchers("/register", "/login").permitAll().anyRequest().authenticated());
-		httpSecurity.httpBasic(Customizer.withDefaults());
+		return httpSecurity.csrf(customizer -> customizer.disable())
+				.authorizeHttpRequests(
+						request -> request.antMatchers("/register", "/login").permitAll().anyRequest().authenticated())
+				.httpBasic(Customizer.withDefaults())
 
-		// This makes to create a new session for each request.(In postman it will work,
-		// but through screen as session is ended and new session is created login form
-		// will open. for this we need to disable form login
-		httpSecurity.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-		return httpSecurity.build();
+				// This makes to create a new session for each request.(In postman it will work,
+				// but through screen as session is ended and new session is created login form
+				// will open. for this we need to disable form login
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class).build();
 	}
 
 	@Bean
